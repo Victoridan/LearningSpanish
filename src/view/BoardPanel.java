@@ -28,3 +28,4 @@ public class BoardPanel extends JPanel {
         else rightCol.add(cp);
     }
 }
+
