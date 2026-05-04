@@ -11,7 +11,7 @@ public class MainFrame extends JFrame {
         setTitle("Сопоставление слов");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setLocationRelativeTo(null); // отцентрировать относительно экрана
+        setLocationRelativeTo(null); // отцентрировать относительно экрана.
 
         boardPanel = new BoardPanel();
         setLayout(new BorderLayout(10, 10));

@@ -21,7 +21,7 @@ public class BoardPanel extends JPanel {
     }
 
     /**
-     * Добавляем карточку, если левая, то в левую колонку, иначе в правую
+     * Добавляем карточку, если левая, то в левую колонку, иначе в правуюj
      */
     public void addCard(CardPanel cp, boolean isLeft) {
         if (isLeft) leftCol.add(cp);
