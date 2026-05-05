@@ -3,6 +3,14 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * BoardPanel - игровое поле
+ * GridLayout(0, 1, 10, 10):
+ * 0 строк — количество строк определяется автоматически по количеству добавленных компонентов.
+ * 1 колонка — все элементы в одну колонку.
+ * 10, 10 — вертикальный и горизонтальный зазоры между элементами в 10 пикселей.
+ */
+
 public class BoardPanel extends JPanel {
 
     private final JPanel leftCol = new JPanel(new GridLayout(0, 1, 10, 10));
