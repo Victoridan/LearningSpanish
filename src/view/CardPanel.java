@@ -23,7 +23,7 @@ public class CardPanel extends JPanel {
 
     /**
      * Возвращает ссылку на объект данных модели, связанный с этой визуальной карточкой:
-     * объект Cards.Card с полями: id, text, state/
+     * объект Cards.Card с полями: id, text, state/.
      */
     public Cards.Card getCardModel() {
         return card;
