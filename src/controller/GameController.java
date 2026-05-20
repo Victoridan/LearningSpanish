@@ -1,33 +1,26 @@
 package controller;
-
-import model.Cards;
+import model.Card;
+import model.State;
 import model.GameModel;
 import view.CardPanel;
 import view.MainFrame;
-
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class GameController {
-    private final GameModel model; // модель игры
-    private final MainFrame view; // главное окно
-    private CardPanel selected; // первая выбранная
+    private final GameModel model;
+    private final MainFrame view;
+    private CardPanel selectedPanel;
 
-    /**
-     * Конструктор, инициализирует поля, ставил флаг "в левую колонку"
-     * */
     public GameController(GameModel model, MainFrame view) {
         this.model = model;
         this.view = view;
-        for (Cards.Card c : model.getRussianCards()) addCard(c, true);
-        for (Cards.Card c : model.getForeignCards()) addCard(c, false);
+        for (Card c : model.getRussianCards()) addCard(c, true);
+        for (Card c : model.getForeignCards()) addCard(c, false);
     }
 
-    /**
-     * Создает визуальную карточку, добавляет в панель в правую или левую колонку,
-     * */
-    private void addCard(Cards.Card card, boolean left) {
+    private void addCard(Card card, boolean left) {
         CardPanel panel = new CardPanel(card);
         view.getBoardPanel().addCard(panel, left);
         panel.addMouseListener(new MouseAdapter() {
@@ -46,42 +39,28 @@ public class GameController {
      * на выбранную, перерисовываем.
      * */
     private void onClick(CardPanel clicked) {
-        Cards.Card c2 = clicked.getCardModel();
-        if (c2.getState() == Cards.Card.State.MATCHED || selected == clicked) return;
+        Card c2 = clicked.getCardModel();
+        if (c2.getState() == State.MATCHED || selectedPanel == clicked) return;
 
-        if (selected != null) { // выбрана первая и вторая
-            Cards.Card c1 = selected.getCardModel();
-            CardPanel panel1 = selected;
-            CardPanel panel2 = clicked;
+        if (selectedPanel != null) {
+            Card c1 = selectedPanel.getCardModel();
 
             if (model.check(c1, c2)) {
-                c1.setState(Cards.Card.State.MATCHED);
-                c2.setState(Cards.Card.State.MATCHED);
-                panel1.repaint();
-                panel2.repaint();
-                selected = null;
+                c1.setState(State.MATCHED);
+                c2.setState(State.MATCHED);
             } else {
-                c1.setState(Cards.Card.State.WRONG);
-                c2.setState(Cards.Card.State.WRONG);
-                panel1.repaint();
-                panel2.repaint();
-
+                c1.setState(State.WRONG);
+                c2.setState(State.WRONG);
+                // Таймер сбрасывает состояние, если пара не угадана
                 new Timer(1000, e -> {
-                    if (c1.getState() != Cards.Card.State.MATCHED) {
-                        c1.setState(Cards.Card.State.NORMAL);
-                        panel1.repaint();
-                    }
-                    if (c2.getState() != Cards.Card.State.MATCHED) {
-                        c2.setState(Cards.Card.State.NORMAL);
-                        panel2.repaint();
-                    }
+                    if (c1.getState() != State.MATCHED) c1.setState(State.NORMAL);
+                    if (c2.getState() != State.MATCHED) c2.setState(State.NORMAL);
                 }).start();
-                selected = null;
             }
+            selectedPanel = null;
         } else {
-            selected = clicked;
-            c2.setState(Cards.Card.State.SELECTED);
-            clicked.repaint();
+            selectedPanel = clicked;
+            c2.setState(State.SELECTED);
         }
     }
 }

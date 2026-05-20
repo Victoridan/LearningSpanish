@@ -1,19 +1,24 @@
 import controller.GameController;
-import model.Cards;
 import model.GameModel;
+import repository.LanguageManifest;
+import repository.WordRepository;
 import view.BoardPanel;
+import view.LanguageSelectionDialog;
 import view.MainFrame;
 
 import javax.swing.*;
-import java.util.List;
-//.
+
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            List<Cards.Card> cards = Cards.getRandomPairs(8);
-            GameModel model = new GameModel(cards);
-            BoardPanel boardPanel = new BoardPanel();
-            MainFrame frame = new MainFrame(boardPanel);
+            LanguageSelectionDialog dialog = new LanguageSelectionDialog(null);
+            dialog.setVisible(true);
+            String langKey = dialog.getSelectedKey();
+            if (langKey == null) System.exit(0);
+            WordRepository repo = LanguageManifest.repositoryFor(langKey);
+            GameModel model = new GameModel(repo, 8);
+            BoardPanel board = new BoardPanel();
+            MainFrame frame = new MainFrame(board);
             new GameController(model, frame);
             frame.setVisible(true);
         });

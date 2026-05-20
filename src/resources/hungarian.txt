@@ -1,0 +1,145 @@
+# Приветствия и вежливые слова
+привет|szia
+доброе утро|jó reggelt
+добрый вечер|jó estét
+доброй ночи|jó éjszakát
+до свидания|viszontlátásra
+пока|szia
+пожалуйста|kérem
+спасибо|köszönöm
+не за что|szívesen
+извините|bocsánat
+да|igen
+нет|nem
+
+# Местоимения
+я|én
+ты|te
+он|ő
+она|ő
+вы|ti
+мы|mi
+
+# Глаголы
+иметь|van
+делать|csinálni
+говорить|beszélni
+есть|enni
+пить|inni
+жить|lakni
+работать|dolgozni
+учиться|tanulni
+читать|olvasni
+писать|írni
+идти|menni
+приходить|jönni
+хотеть|akarni
+мочь|tudni
+знать|ismerni
+нравиться|tetszeni
+
+# Семья
+мама|anya
+папа|apa
+сын|fiú
+дочь|lány
+брат|testvér
+сестра|lánytestvér
+муж|férj
+жена|feleség
+друг|barát
+подруга|barátnő
+
+# Дом
+дом|ház
+квартира|lakás
+комната|szoba
+кухня|konyha
+ванная|fürdőszoba
+стол|asztal
+стул|szék
+кровать|ágy
+дверь|ajtó
+окно|ablak
+
+# Еда и напитки
+вода|víz
+хлеб|kenyér
+молоко|tej
+кофе|kávé
+чай|tea
+вино|bor
+пиво|sör
+мясо|hús
+рыба|hal
+фрукты|gyümölcs
+рис|rizs
+сахар|cukor
+соль|só
+
+# Город и транспорт
+улица|utca
+площадь|tér
+магазин|bolt
+ресторан|étterem
+больница|kórház
+аэропорт|repülőtér
+машина|autó
+автобус|busz
+поезд|vonat
+такси|taxi
+
+# Цвета
+красный|piros
+синий|kék
+зелёный|zöld
+жёлтый|sárga
+чёрный|fekete
+белый|fehér
+
+# Числа
+один|egy
+два|kettő
+три|három
+четыре|négy
+пять|öt
+шесть|hat
+семь|hét
+восемь|nyolc
+девять|kilenc
+десять|tíz
+
+# Время
+сегодня|ma
+завтра|holnap
+вчера|tegnap
+сейчас|most
+всегда|mindig
+никогда|soha
+день|nap
+ночь|éjszaka
+неделя|hét
+месяц|hónap
+год|év
+
+# Прилагательные
+большой|nagy
+маленький|kicsi
+хороший|jó
+плохой|rossz
+красивый|szép
+новый|új
+старый|régi
+дорогой|drága
+дешёвый|olcsó
+холодный|hideg
+горячий|forró
+
+# Вопросы
+что?|mi?
+кто?|ki?
+где?|hol?
+когда?|mikor?
+почему?|miért?
+как?|hogyan?
+сколько?|mennyi?
