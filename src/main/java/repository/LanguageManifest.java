@@ -34,10 +34,11 @@ public class LanguageManifest {
         return languages;
     }
 
-    /**.
+    /*.
      * По ключу языка создаёт репозиторий, который загружает конкретный словарь.
      */
     public static WordRepository repositoryFor(String languageKey) {
         return new ClasspathWordRepository(languageKey);
     }
 }
+

@@ -49,3 +49,4 @@ public class ClasspathWordRepository implements WordRepository {
         }
     }
 }
+

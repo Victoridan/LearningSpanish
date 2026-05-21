@@ -4,8 +4,6 @@ import repository.LanguageManifest;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class LanguageSelectionDialog extends JDialog {
@@ -69,3 +67,4 @@ public class LanguageSelectionDialog extends JDialog {
         return selectedKey;
     }
 }
+

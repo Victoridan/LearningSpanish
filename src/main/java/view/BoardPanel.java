@@ -1,4 +1,5 @@
 package view;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -14,5 +15,15 @@ public class BoardPanel extends JPanel {
 
     public void addCard(CardPanel cp, boolean isLeft) {
         if (isLeft) leftCol.add(cp); else rightCol.add(cp);
+        revalidate();
+        repaint();
+    }
+
+    public void clearCards() {
+        leftCol.removeAll();
+        rightCol.removeAll();
+        revalidate();
+        repaint();
     }
 }
+

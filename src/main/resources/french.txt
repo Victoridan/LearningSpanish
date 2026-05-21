@@ -143,3 +143,4 @@
 почему?|pourquoi ?
 как?|comment ?
 сколько?|combien ?
+

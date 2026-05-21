@@ -44,3 +44,4 @@ public class CardPanel extends JPanel implements CardStateListener {
         g.drawString(txt, x, y);
     }
 }
+
