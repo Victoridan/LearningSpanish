@@ -13,8 +13,9 @@ public class BoardPanel extends JPanel {
         add(leftCol); add(rightCol);
     }
 
-    public void addCard(CardPanel cp, boolean isLeft) {
-        if (isLeft) leftCol.add(cp); else rightCol.add(cp);
+    public void addPair(CardPanel leftCp, CardPanel rightCp) {
+        leftCol.add(leftCp);
+        rightCol.add(rightCp);
         revalidate();
         repaint();
     }
@@ -25,5 +26,19 @@ public class BoardPanel extends JPanel {
         revalidate();
         repaint();
     }
+    
+    public void setCardSelected(model.Card card, boolean selected) {
+        for (Component c : leftCol.getComponents()) {
+            if (c instanceof CardPanel cp && cp.getCardModel() == card) {
+                cp.setSelected(selected);
+                return;
+            }
+        }
+        for (Component c : rightCol.getComponents()) {
+            if (c instanceof CardPanel cp && cp.getCardModel() == card) {
+                cp.setSelected(selected);
+                return;
+            }
+        }
+    }
 }
-

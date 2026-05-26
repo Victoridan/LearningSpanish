@@ -1,39 +1,30 @@
 package view;
 
-import repository.LanguageManifest;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.Map;
+import repository.Language;
 
 public class LanguageSelectionDialog extends JDialog {
-    private String selectedKey = null;
+    private Language selectedLanguage = null;
 
-    /**
-     * Получаем массив со всеми доступными языками, создаем выпадающий список
-     * с названиями языков.
-     */
-    public LanguageSelectionDialog(Window owner) {
+    public LanguageSelectionDialog(Window owner, java.util.Map<Language, repository.WordRepository> langs) {
         super(owner, "Выберите язык", ModalityType.APPLICATION_MODAL);
 
-        Map<String, String> langs = LanguageManifest.getLanguages();
         if (langs.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Файлы словарей не найдены в resources/", "Ошибка", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        JComboBox<String> combo = new JComboBox<>(langs.values().toArray(new String[0]));
+        JComboBox<Language> combo = new JComboBox<>(langs.keySet().toArray(new Language[0]));
         JButton btnOk = new JButton("Начать");
         JButton btnCancel = new JButton("Отмена");
 
         btnOk.addActionListener(e -> {
-            String chosenName = (String) combo.getSelectedItem();
-            selectedKey = findKey(langs, chosenName);
+            selectedLanguage = (Language) combo.getSelectedItem();
             dispose();
         });
 
         btnCancel.addActionListener(e -> {
-            selectedKey = null;
+            selectedLanguage = null;
             dispose();
         });
 
@@ -54,17 +45,8 @@ public class LanguageSelectionDialog extends JDialog {
         setResizable(false);
     }
 
-    private String findKey(Map<String, String> map, String name) {
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            if (entry.getValue().equals(name)) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    public String getSelectedKey() {
-        return selectedKey;
+    public Language getSelectedLanguage() {
+        return selectedLanguage;
     }
 }
 

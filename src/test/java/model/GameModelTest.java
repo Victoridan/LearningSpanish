@@ -16,7 +16,7 @@ public class GameModelTest {
         FakeRepo(List<WordPair> pairs) { this.pairs = pairs; }
 
         @Override
-        public List<WordPair> loadPairs() { return new java.util.ArrayList<>(pairs); }
+        public List<WordPair> getPairs() { return pairs; }
     }
 
     @Test
@@ -67,7 +67,7 @@ public class GameModelTest {
     }
 
     @Test
-    void restartSessionResetsCountersAndReloadsPairs() {
+    void startSessionResetsCountersAndReloadsPairs() {
         List<WordPair> pairs1 = List.of(new WordPair(1, "r1", "f1"));
         GameModel model = new GameModel(new FakeRepo(pairs1), 1);
 
@@ -82,10 +82,10 @@ public class GameModelTest {
                 new WordPair(2, "r2", "f2"),
                 new WordPair(3, "r3", "f3")
         );
-        model.restartSession(new FakeRepo(pairs2));
+        model.startSession(new FakeRepo(pairs2));
 
         SessionResult after = model.getSessionResult();
-        assertEquals(0, after.correct(), "после restartSession счётчики должны обнулиться");
+        assertEquals(0, after.correct(), "после startSession счётчики должны обнулиться");
         assertEquals(0, after.incorrect());
         assertEquals(1, model.getRussianCards().size(), "должна загрузиться 1 карточка из нового репозитория, т.к. pairCount был 1");
     }

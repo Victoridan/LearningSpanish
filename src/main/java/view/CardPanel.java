@@ -1,17 +1,16 @@
 package view;
 import model.Card;
-import model.CardStateListener;
 import model.State;
 import javax.swing.*;
 import java.awt.*;
 
-public class CardPanel extends JPanel implements CardStateListener {
+public class CardPanel extends JPanel {
     private final Card card;
-    private static final Font FONT = new Font("SansSerif", Font.PLAIN, 30);
+    private boolean selected = false;
+    private static final Font FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 30);
 
     public CardPanel(Card card) {
         this.card = card;
-        card.addListener(this);
 
         setPreferredSize(new Dimension(140, 60));
         setBorder(BorderFactory.createLineBorder(Color.GRAY, 2));
@@ -19,21 +18,25 @@ public class CardPanel extends JPanel implements CardStateListener {
     }
 
     public Card getCardModel() { return card; }
-
-    @Override
-    public void onStateChanged(Card card, State newState) {
+    
+    public void setSelected(boolean selected) {
+        this.selected = selected;
         repaint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-        Color bg = switch (card.getState()) {
-            case SELECTED -> new Color(200, 220, 255);
-            case CORRECT, MATCHED -> new Color(180, 255, 180);
-            case WRONG -> new Color(255, 180, 180);
-            default -> Color.WHITE;
-        };
+        Color bg;
+        if (selected) {
+            bg = new Color(200, 220, 255);
+        } else {
+            bg = switch (card.getState()) {
+                case MATCHED -> new Color(180, 255, 180);
+                case WRONG -> new Color(255, 180, 180);
+                default -> Color.WHITE;
+            };
+        }
         g.setColor(bg);
         g.fillRoundRect(2, 2, getWidth() - 4, getHeight() - 4, 10, 10);
         g.setColor(Color.BLACK);
@@ -44,4 +47,3 @@ public class CardPanel extends JPanel implements CardStateListener {
         g.drawString(txt, x, y);
     }
 }
-
