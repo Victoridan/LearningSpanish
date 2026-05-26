@@ -10,15 +10,12 @@
     <packaging>jar</packaging>
 
     <properties>
-        <!-- Установлено в соответствии с локально обнаруженной JDK (java -version -> 23.x) -->
         <maven.compiler.source>23</maven.compiler.source>
         <maven.compiler.target>23</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <build>
-        <!-- Используем стандартную Maven-структуру: src/main/java и src/test/java -->
-        <!-- Ресурсы размещаем в src/main/resources -->
         <resources>
             <resource>
                 <directory>src/main/resources</directory>
@@ -38,7 +35,6 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <!-- Подставляем совместимые значения с maven.compiler.* выше (JDK 23) -->
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
                     <encoding>UTF-8</encoding>
@@ -49,7 +45,6 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.3.0</version>
                 <configuration>
-                    <!-- Запускаем класс из default package (Main) по запросу пользователя (вариант B) -->
                     <mainClass>Main</mainClass>
                 </configuration>
             </plugin>
