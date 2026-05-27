@@ -26,7 +26,7 @@ public class BoardPanel extends JPanel {
         revalidate();
         repaint();
     }
-    
+
     public void setCardSelected(model.Card card, boolean selected) {
         for (Component c : leftCol.getComponents()) {
             if (c instanceof CardPanel cp && cp.getCardModel() == card) {
@@ -37,6 +37,21 @@ public class BoardPanel extends JPanel {
         for (Component c : rightCol.getComponents()) {
             if (c instanceof CardPanel cp && cp.getCardModel() == card) {
                 cp.setSelected(selected);
+                return;
+            }
+        }
+    }
+
+    public void setCardTransientWrong(model.Card card, boolean wrong) {
+        for (Component c : leftCol.getComponents()) {
+            if (c instanceof CardPanel cp && cp.getCardModel() == card) {
+                cp.setTransientWrong(wrong);
+                return;
+            }
+        }
+        for (Component c : rightCol.getComponents()) {
+            if (c instanceof CardPanel cp && cp.getCardModel() == card) {
+                cp.setTransientWrong(wrong);
                 return;
             }
         }

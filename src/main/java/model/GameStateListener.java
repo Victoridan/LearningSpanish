@@ -8,5 +8,7 @@ public interface GameStateListener {
     void onScoreUpdated(int correct, int incorrect);
     void onRoundCompleted();
     void onSessionCompleted(SessionResult result);
+    void onCardSelectionChanged(Card card, boolean isSelected);
+    void onCardsMismatch(Card c1, Card c2);
 }
 

@@ -5,8 +5,10 @@ import org.junit.jupiter.api.Test;
 import repository.WordRepository;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import repository.Language;
 
 public class GameModelTest {
 
@@ -26,8 +28,10 @@ public class GameModelTest {
                 new WordPair(2, "r2", "f2"),
                 new WordPair(3, "r3", "f3")
         );
+        Language dummy = new Language("dummy", "Dummy");
+        Map<Language, WordRepository> map = Map.of(dummy, new FakeRepo(pairs));
 
-        GameModel model = new GameModel(new FakeRepo(pairs), 2);
+        GameModel model = new GameModel(map, dummy, 2);
 
         assertEquals(2, model.getRussianCards().size(), "должно быть 2 русских карточки");
         assertEquals(2, model.getForeignCards().size(), "должно быть 2 иностранных карточки");
@@ -37,19 +41,24 @@ public class GameModelTest {
     void checkUpdatesCorrectAndIncorrectCountsAndSessionResult() {
         List<WordPair> pairs = List.of(
                 new WordPair(1, "r1", "f1"),
-                new WordPair(2, "r2", "f2")
+                new WordPair(2, "r2", "f2"),
+                new WordPair(3, "r3", "f3")
         );
+        Language dummy = new Language("dummy", "Dummy");
+        Map<Language, WordRepository> map = Map.of(dummy, new FakeRepo(pairs));
 
-        GameModel model = new GameModel(new FakeRepo(pairs), 2);
+        GameModel model = new GameModel(map, dummy, 3);
 
         // найдём русскую карточку и соответствующую ей иностранную
-        Card rus = model.getRussianCards().get(0);
+        Card rus = model.getRussianCards().getFirst();
         Card matchingForeign = model.getForeignCards().stream()
                 .filter(c -> c.getId() == rus.getId())
                 .findFirst()
                 .orElseThrow();
 
-        assertTrue(model.check(rus, matchingForeign), "пара должна быть корректной");
+        model.selectCard(rus);
+        model.selectCard(matchingForeign);
+        assertEquals(State.MATCHED, rus.getState(), "карточки должны совпасть");
 
         SessionResult res1 = model.getSessionResult();
         assertEquals(1, res1.correct());
@@ -57,9 +66,14 @@ public class GameModelTest {
 
         // теперь намеренно неверная пара
         Card rus2 = model.getRussianCards().stream().filter(c -> c.getId() != rus.getId()).findFirst().orElseThrow();
-        Card foreignNotMatching = model.getForeignCards().stream().filter(c -> c.getId() != rus2.getId()).findFirst().orElseThrow();
+        Card foreignNotMatching = model.getForeignCards().stream()
+                .filter(c -> c.getId() != rus.getId() && c.getId() != rus2.getId())
+                .findFirst()
+                .orElseThrow();
 
-        assertFalse(model.check(rus2, foreignNotMatching), "пара должна быть неверной");
+        model.selectCard(rus2);
+        model.selectCard(foreignNotMatching);
+        assertEquals(State.WRONG, rus2.getState(), "карточки должны быть неверной парой");
 
         SessionResult res2 = model.getSessionResult();
         assertEquals(1, res2.correct());
@@ -69,20 +83,27 @@ public class GameModelTest {
     @Test
     void startSessionResetsCountersAndReloadsPairs() {
         List<WordPair> pairs1 = List.of(new WordPair(1, "r1", "f1"));
-        GameModel model = new GameModel(new FakeRepo(pairs1), 1);
-
-        Card rus = model.getRussianCards().get(0);
-        Card foreign = model.getForeignCards().get(0);
-        assertTrue(model.check(rus, foreign));
-        SessionResult before = model.getSessionResult();
-        assertEquals(1, before.correct());
-
-        // перезапускаем с новым репозиторием
         List<WordPair> pairs2 = List.of(
                 new WordPair(2, "r2", "f2"),
                 new WordPair(3, "r3", "f3")
         );
-        model.startSession(new FakeRepo(pairs2));
+        
+        Language lang1 = new Language("l1", "L1");
+        Language lang2 = new Language("l2", "L2");
+        Map<Language, WordRepository> map = Map.of(lang1, new FakeRepo(pairs1), lang2, new FakeRepo(pairs2));
+
+        GameModel model = new GameModel(map, lang1, 1);
+
+        Card rus = model.getRussianCards().getFirst();
+        Card foreign = model.getForeignCards().getFirst();
+        model.selectCard(rus);
+        model.selectCard(foreign);
+        
+        SessionResult before = model.getSessionResult();
+        assertEquals(1, before.correct());
+
+        // перезапускаем с новым языком
+        model.startSession(lang2);
 
         SessionResult after = model.getSessionResult();
         assertEquals(0, after.correct(), "после startSession счётчики должны обнулиться");

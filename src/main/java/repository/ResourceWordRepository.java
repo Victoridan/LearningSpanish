@@ -1,4 +1,5 @@
 package repository;
+
 import model.WordPair;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -9,7 +10,8 @@ import java.util.Map;
 
 public class ResourceWordRepository implements WordRepository {
     private final String fileName;
-    private List<WordPair> cachedPairs;
+
+    private volatile List<WordPair> cachedPairs;
 
     public ResourceWordRepository(String languageKey) {
         this.fileName = languageKey + ".properties";
@@ -17,27 +19,40 @@ public class ResourceWordRepository implements WordRepository {
 
     @Override
     public List<WordPair> getPairs() {
-        if (cachedPairs != null) {
-            return cachedPairs;
+        List<WordPair> result = cachedPairs;
+        if (result != null) {
+            return result;
         }
 
-        try (InputStream in = getClass().getClassLoader().getResourceAsStream(fileName)) {
-            if (in == null) throw new IllegalStateException("Файл не найден в resources: " + fileName);
+        synchronized (this) {
+            result = cachedPairs;
+            if (result == null) {
+                try (InputStream in = getClass().getClassLoader().getResourceAsStream(fileName)) {
+                    if (in == null) throw new IllegalStateException("Файл не найден в resources: " + fileName);
 
-            Properties props = new Properties();
-            props.load(new InputStreamReader(in, StandardCharsets.UTF_8));
-            
-            List<WordPair> result = new ArrayList<>();
-            int id = 0;
-            
-            for (Map.Entry<Object, Object> entry : props.entrySet()) {
-                result.add(new WordPair(id++, entry.getKey().toString().strip(), entry.getValue().toString().strip()));
+                    Properties props = new Properties();
+                    props.load(new InputStreamReader(in, StandardCharsets.UTF_8));
+
+                    List<WordPair> parsingResult = new ArrayList<>();
+                    int id = 0;
+
+                    for (Map.Entry<Object, Object> entry : props.entrySet()) {
+                        String key = entry.getKey().toString().replace("\uFEFF", "").strip();
+                        if (key.startsWith("#") || key.isEmpty()) {
+                            continue;
+                        }
+
+                        String value = entry.getValue().toString().strip();
+                        parsingResult.add(new WordPair(id++, key, value));
+                    }
+
+                    cachedPairs = parsingResult;
+                    result = parsingResult;
+                } catch (IOException e) {
+                    throw new RuntimeException("Ошибка чтения: " + fileName, e);
+                }
             }
-            
-            cachedPairs = result;
             return result;
-        } catch (IOException e) {
-            throw new RuntimeException("Ошибка чтения: " + fileName, e);
         }
     }
 }

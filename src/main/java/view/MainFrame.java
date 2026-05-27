@@ -2,18 +2,20 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collection;
 import java.util.List;
+import model.Card;
+import model.SessionResult;
+import repository.Language;
 
-public class MainFrame extends JFrame implements model.GameStateListener {
+public class MainFrame extends JFrame {
     private final BoardPanel boardPanel;
     private final JLabel resultLabel;
     private final JMenuBar menuBar;
     private final JMenuItem newGameItem;
     private final JMenuItem endSessionItem;
     private final JMenuItem restartItem;
-    private Runnable onRoundCompletedAction;
-    private Runnable onSessionCompletedAction;
-    private java.util.function.Consumer<model.Card> onCardClickedAction;
+    private java.util.function.Consumer<Card> onCardClickedAction;
 
     public MainFrame(BoardPanel boardPanel) {
         this.boardPanel = boardPanel;
@@ -33,7 +35,6 @@ public class MainFrame extends JFrame implements model.GameStateListener {
         restartItem = new JMenuItem("Перезапустить");
         endSessionItem = new JMenuItem("Завершить сессию");
 
-        // Порядок меню: новая игра (начать с выбора языка), перезапустить (тек. язык), завершить
         gameMenu.add(newGameItem);
         gameMenu.add(restartItem);
         gameMenu.addSeparator();
@@ -44,37 +45,28 @@ public class MainFrame extends JFrame implements model.GameStateListener {
         add(resultLabel, BorderLayout.NORTH);
         add(boardPanel, BorderLayout.CENTER);
     }
-    
-    public void setOnRoundCompletedAction(Runnable action) {
-        this.onRoundCompletedAction = action;
-    }
-    
-    public void setOnSessionCompletedAction(Runnable action) {
-        this.onSessionCompletedAction = action;
-    }
-    
-    public void setOnCardClickedAction(java.util.function.Consumer<model.Card> action) {
+
+    public void setOnCardClickedAction(java.util.function.Consumer<Card> action) {
         this.onCardClickedAction = action;
     }
 
-    @Override
-    public void onCardsDealt(List<model.Card> russianCards, List<model.Card> foreignCards) {
+    public void updateCards(List<Card> russianCards, List<Card> foreignCards) {
         boardPanel.clearCards();
         int size = Math.min(russianCards.size(), foreignCards.size());
         for (int i = 0; i < size; i++) {
-            model.Card rc = russianCards.get(i);
+            Card rc = russianCards.get(i);
             CardPanel leftCp = new CardPanel(rc);
             leftCp.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(java.awt.event.MouseEvent e) { 
-                    if (onCardClickedAction != null) onCardClickedAction.accept(rc); 
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    if (onCardClickedAction != null) onCardClickedAction.accept(rc);
                 }
             });
 
-            model.Card fc = foreignCards.get(i);
+            Card fc = foreignCards.get(i);
             CardPanel rightCp = new CardPanel(fc);
             rightCp.addMouseListener(new java.awt.event.MouseAdapter() {
-                public void mouseClicked(java.awt.event.MouseEvent e) { 
-                    if (onCardClickedAction != null) onCardClickedAction.accept(fc); 
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    if (onCardClickedAction != null) onCardClickedAction.accept(fc);
                 }
             });
 
@@ -82,18 +74,17 @@ public class MainFrame extends JFrame implements model.GameStateListener {
         }
     }
 
-    @Override
-    public void onCardStateChanged(model.Card card) {
+    public void refreshBoard() {
         boardPanel.repaint();
     }
 
-    @Override
-    public void onScoreUpdated(int correct, int incorrect) {
-        updateResults(correct, incorrect);
+    public Language showLanguageSelectionDialog(Collection<Language> availableLanguages) {
+        LanguageSelectionDialog dialog = new LanguageSelectionDialog(this, availableLanguages);
+        dialog.setVisible(true);
+        return dialog.getSelectedLanguage();
     }
 
-    @Override
-    public void onRoundCompleted() {
+    public boolean showRoundCompletedPrompt() {
         int opt = JOptionPane.showOptionDialog(this,
                 "Раунд завершён! Продолжить следующий раунд?",
                 "Раунд завершён",
@@ -103,25 +94,29 @@ public class MainFrame extends JFrame implements model.GameStateListener {
                 new Object[]{"Продолжить","Завершить"},
                 "Продолжить");
 
-        if (opt == JOptionPane.YES_OPTION) {
-            if (onRoundCompletedAction != null) onRoundCompletedAction.run();
-        } else {
-            if (onSessionCompletedAction != null) onSessionCompletedAction.run();
-        }
+        return opt == JOptionPane.YES_OPTION;
     }
 
-    @Override
-    public void onSessionCompleted(model.SessionResult result) {
+    public void showSessionResult(SessionResult result) {
         String message = String.format("Сессия завершена!\nПравильно: %d\nНеправильно: %d",
                 result.correct(), result.incorrect());
         JOptionPane.showMessageDialog(this, message, "Результаты", JOptionPane.INFORMATION_MESSAGE);
-        dispose();
-        System.exit(0);
+    }
+
+    public void showCardsMismatch(Card c1, Card c2) {
+        boardPanel.setCardTransientWrong(c1, true);
+        boardPanel.setCardTransientWrong(c2, true);
+        Timer timer = new Timer(1000, e -> {
+            boardPanel.setCardTransientWrong(c1, false);
+            boardPanel.setCardTransientWrong(c2, false);
+        });
+        timer.setRepeats(false);
+        timer.start();
     }
 
     public BoardPanel getBoardPanel() { return boardPanel; }
-    
-    public void setCardSelected(model.Card card, boolean selected) {
+
+    public void setCardSelected(Card card, boolean selected) {
         boardPanel.setCardSelected(card, selected);
     }
 

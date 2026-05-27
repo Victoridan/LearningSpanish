@@ -2,19 +2,34 @@ package view;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Collection;
 import repository.Language;
 
 public class LanguageSelectionDialog extends JDialog {
     private Language selectedLanguage = null;
 
-    public LanguageSelectionDialog(Window owner, java.util.Map<Language, repository.WordRepository> langs) {
+    public LanguageSelectionDialog(Window owner, Collection<Language> languages) {
         super(owner, "Выберите язык", ModalityType.APPLICATION_MODAL);
 
-        if (langs.isEmpty()) {
+        if (languages.isEmpty()) {
             return;
         }
 
-        JComboBox<Language> combo = new JComboBox<>(langs.keySet().toArray(new Language[0]));
+        JComboBox<Language> combo = new JComboBox<>(languages.toArray(new Language[0]));
+
+        combo.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                          int index, boolean isSelected,
+                                                          boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof Language lang) {
+                    setText(lang.humanReadable()); // Напрямую запрашиваем понятное имя
+                }
+                return this;
+            }
+        });
+
         JButton btnOk = new JButton("Начать");
         JButton btnCancel = new JButton("Отмена");
 
@@ -49,4 +64,3 @@ public class LanguageSelectionDialog extends JDialog {
         return selectedLanguage;
     }
 }
-

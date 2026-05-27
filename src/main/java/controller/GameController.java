@@ -1,109 +1,87 @@
 package controller;
 
 import model.Card;
-import model.State;
 import model.GameModel;
+import model.GameStateListener;
 import model.SessionResult;
-import repository.WordRepository;
 import repository.Language;
-import view.CardPanel;
-import view.LanguageSelectionDialog;
 import view.MainFrame;
+import java.util.List;
 
-import javax.swing.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.Map;
-
-public class GameController {
+public class GameController implements GameStateListener {
     private final GameModel model;
     private final MainFrame view;
-    private WordRepository currentRepository;
-    private final Map<Language, WordRepository> availableLanguages;
-    private Card selected;
 
-    public GameController(GameModel model, MainFrame view, WordRepository repository, Map<Language, WordRepository> availableLanguages) {
+    public GameController(GameModel model, MainFrame view) {
         this.model = model;
         this.view = view;
-        this.currentRepository = repository;
-        this.availableLanguages = availableLanguages;
 
-        // Model events -> View
-        model.addListener(view);
-
-        // View events -> Controller -> Model
+        model.addListener(this);
         view.setOnCardClickedAction(this::onCardClicked);
-        view.setOnRoundCompletedAction(model::startNextRound);
-        view.setOnSessionCompletedAction(model::endSession);
-
         setupMenuActions();
 
-        // Initialize view with currently dealt cards (since initialized in model constructor)
-        view.onCardsDealt(model.getRussianCards(), model.getForeignCards());
+        view.updateCards(model.getRussianCards(), model.getForeignCards());
         view.updateResults(0, 0);
     }
 
     private void setupMenuActions() {
-        // "Новая игра" - выбрать язык и начать
         view.setNewGameListener(this::chooseLanguageAndRestart);
-        // "Перезапустить" - перезапустить сессию на текущем языке
         view.setRestartListener(this::restartSameLanguage);
         view.setEndSessionListener(model::endSession);
     }
 
     private void onCardClicked(Card clickedCard) {
-        if (clickedCard.getState() == State.MATCHED || selected == clickedCard) return;
-        
-        if (selected != null) {
-            Card c1 = selected;
-            Card c2 = clickedCard;
-            boolean isMatch = model.check(c1, c2); // Model triggers events, view repaints
-            
-            if (!isMatch) {
-                Timer t = new Timer(1000, e -> {
-                    model.resetWrongState(c1, c2);
-                });
-                t.setRepeats(false);
-                t.start();
-            }
-            view.setCardSelected(selected, false);
-            selected = null;
-        } else {
-            selected = clickedCard;
-            view.setCardSelected(selected, true);
-        }
+        model.selectCard(clickedCard);
     }
 
-    /**
-     * Выбрать язык через диалоговое окно и перезапустить сессию.
-     */
     public void chooseLanguageAndRestart() {
-        LanguageSelectionDialog dialog = new LanguageSelectionDialog(view, availableLanguages);
-        dialog.setVisible(true);
-        Language lang = dialog.getSelectedLanguage();
+        Language lang = view.showLanguageSelectionDialog(model.getAvailableLanguages());
         if (lang == null) return;
-        
-        startNewSession(availableLanguages.get(lang));
+
+        model.startSession(lang);
     }
 
-    /**
-     * Начать новую игровую сессию с выбранным репозиторием.
-     */
-    public void startNewSession(WordRepository newRepo) {
-        this.currentRepository = newRepo;
-        selected = null;
-        model.startSession(newRepo); // Model deals cards and triggers View
-    }
-
-    /**
-     * Перезапустить текущую сессию, сохранив выбранный язык/репозиторий.
-     */
     public void restartSameLanguage() {
-        if (currentRepository == null) {
-            chooseLanguageAndRestart();
-            return;
+        model.startSession(model.getCurrentLanguage());
+    }
+
+    @Override
+    public void onCardsDealt(List<Card> russianCards, List<Card> foreignCards) {
+        view.updateCards(russianCards, foreignCards);
+    }
+
+    @Override
+    public void onCardStateChanged(Card card) {
+        view.refreshBoard();
+    }
+
+    @Override
+    public void onScoreUpdated(int correct, int incorrect) {
+        view.updateResults(correct, incorrect);
+    }
+
+    @Override
+    public void onRoundCompleted() {
+        if (view.showRoundCompletedPrompt()) {
+            model.startNextRound();
+        } else {
+            model.endSession();
         }
-        selected = null;
-        model.startSession(currentRepository);
+    }
+
+    @Override
+    public void onSessionCompleted(SessionResult result) {
+        view.showSessionResult(result);
+        chooseLanguageAndRestart();
+    }
+
+    @Override
+    public void onCardSelectionChanged(Card card, boolean isSelected) {
+        view.setCardSelected(card, isSelected);
+    }
+
+    @Override
+    public void onCardsMismatch(Card c1, Card c2) {
+        view.showCardsMismatch(c1, c2);
     }
 }
